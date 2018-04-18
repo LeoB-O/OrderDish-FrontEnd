@@ -1,0 +1,19 @@
+{
+  "name": "orderdish",
+  "version": "0.0.1",
+  "description": "Order dish online and send order to the chicken",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeoB-O/OrderDish-FrontEnd.git"
+  },
+  "author": "LeoB_O",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LeoB-O/OrderDish-FrontEnd/issues"
+  },
+  "homepage": "https://github.com/LeoB-O/OrderDish-FrontEnd#readme"
+}
