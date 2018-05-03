@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/LeoB-O/OrderDish-FrontEnd/issues"
   },
-  "homepage": "https://github.com/LeoB-O/OrderDish-FrontEnd#readme"
+  "homepage": "https://github.com/LeoB-O/OrderDish-FrontEnd#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "mockjs": "^1.0.1-beta3"
+  }
 }
