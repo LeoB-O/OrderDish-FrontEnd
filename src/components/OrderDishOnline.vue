@@ -57,12 +57,31 @@
       </div>
       <div class="clear"></div>
     </div>
+    <div class="casher-content">
+      <div v-for="item in cart" class="casher-item" v-bind:key="item.id">
+        <div class="casher-item-name">
+          {{item.name}}
+        </div>
+        <div class="casher-item-price">
+          {{item.price}}
+        </div>
+        <div class="casher-item-amount">
+          <div @click="removeFromCart"
+               class="button-add glyphicon glyphicon-minus-sign"
+               aria-hidden="true"></div>
+          <span>{{item.amount}}</span>
+          <div @click="addToCart" v-if="!item.options"
+               class="button-add glyphicon glyphicon-plus-sign"
+               aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
     <div class="space"></div>
     <div class="casher">
       <div v-if="cart.length==0" class="cart">
         <div>未选购商品</div>
       </div>
-      <div v-else class="cart">
+      <div v-else class="cart" @click="handleCartClick">
         <div>{{totalPrice}}</div>
       </div>
       <div v-if="totalPrice<shop.minCost" class="check">
@@ -95,9 +114,30 @@ for (let i = 0; i < 20; i++) {
   }
   content.push({cataName: Mock.mock('@cword(2,4)'), items: items, active: false})
 }
+
 export default {
   name: 'OrderDishOnline',
+  mounted: function () {
+    window.addEventListener('scroll', this.handleScroll)
+  },
   methods: {
+    handleScroll: function () {
+      let targetElem = document.getElementsByClassName('catagory')[0]
+      let headerHeight = document.getElementsByClassName('header')[0].offsetHeight
+      let offset = document.documentElement.scrollTop
+      let top = headerHeight - offset
+      console.log(top + 'px')
+      targetElem.style.top = top + 'px'
+    },
+    handleCartClick: function () {
+      let cartContent = document.getElementsByClassName('casher-content')[0]
+      let cartDisplay = cartContent.style.display
+      if (cartDisplay === 'none' || cartDisplay === '') {
+        cartContent.style.display = 'block'
+      } else {
+        cartContent.style.display = 'none'
+      }
+    },
     active: function (event) {
       let cataName = event.target.innerHTML.trim()
       if (event.target.children[0]) {
@@ -113,9 +153,9 @@ export default {
       }
       console.log(cataName)
       // let cPos = $('#' + cataName).position()
-      let cPos = document.getElementsByClassName(cataName).scrollTop
-      document.getElementById(cataName).scrollTop = cPos
-      console.log(cPos.top)
+      let cPos = document.getElementById(cataName).offsetTop
+      console.log(cPos)
+      document.getElementsByClassName('item')[0].scrollTo(0, cPos)
     },
     isInCart: function (itemName) {
       for (let item of this.cart) {
@@ -204,12 +244,13 @@ export default {
 }
 </script>
 
-<style scoped>
-  * {
-    padding: 0px;
-    margin: 0px;
-    border: 0px;
-    font-family:"Microsoft YaHei",微软雅黑,"MicrosoftJhengHei",华文细黑,STHeiti,MingLiu;
+<style>
+  .order-dish-online {
+    height: 100%;
+  }
+
+  .container {
+    height: 90%;
   }
 
   .header {
@@ -239,7 +280,6 @@ export default {
     /*width: 50%;*/
     position: relative;
     top: -10%;
-    text-align: center;
     /*left: 25%;*/
   }
 
@@ -251,6 +291,10 @@ export default {
 
   .container {
     width: 100%;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
     /*border: 1px solid;*/
   }
 
@@ -282,6 +326,7 @@ export default {
   }
 
   .catagory li.catagoryActive {
+    height: auto;
     padding: 10px 0px;
     /*border-bottom: 1px solid;*/
     /*border-style: solid;*/
@@ -292,31 +337,27 @@ export default {
 
   .item {
     width: 80%;
-    height: 90%;
+    height: 100%;
     float: right;
     overflow: scroll;
     position: relative;
   }
 
-  .item .item-title {
-    height: 5%;
-  }
-
   .item ul {
     list-style-type: none;
-    overflow: scroll;
+    height: auto;
   }
 
   .item li {
     /*border-bottom: 1px solid;*/
-    height: 10em;
+    height: 15%;
     display: flex;
     align-items: center;
   }
 
   .item li img {
     width: auto;
-    height: 90%;
+    height: 7em;
   }
 
   .item li .item-detail {
@@ -342,15 +383,11 @@ export default {
     right: 0px;
     font-size: 20px;
     color: #FF8C00;
-    width: auto;
-    height: auto;
   }
 
   .item li .button-add {
     font-size: 20px;
     color: #FF8C00;
-    width: auto;
-    height: auto;
   }
 
   .space {
@@ -365,6 +402,31 @@ export default {
     bottom: 0px;
     display: flex;
     color: #909090;
+  }
+
+  .casher-content {
+    position: fixed;
+    display: none;
+    width: 100%;
+    bottom: 10%;
+    background-color: white;
+  }
+
+  .casher-item {
+    font-size: 15px;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .casher-item .casher-item-name {
+    width: 50%;
+  }
+  .casher-item .casher-item-price {
+    width: 20%;
+  }
+
+  .casher-item .casher-item-amount {
+    width: 30%;
   }
 
   .casher .cart {
