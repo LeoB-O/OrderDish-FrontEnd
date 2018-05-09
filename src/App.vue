@@ -22,6 +22,7 @@ export default {
 
   html {
     height: 100%;
+    -webkit-overflow-scrolling: touch
   }
 
   body {

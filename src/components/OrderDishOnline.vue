@@ -39,14 +39,14 @@
                   ￥{{item.price}}
                 </div>
                 <div class="button">
-                  <div @click="removeFromCart" v-if="isInCart(item.name)"
+                  <div @click="removeFromCart(item.id)" v-if="isInCart(item.name)"
                        class="button-add glyphicon glyphicon-minus-sign"
                        aria-hidden="true"></div>
                   <span v-if="isInCart(item.name)">{{selectedAmount(item.name)}}</span>
-                  <div @click="addToCart" v-if="!item.options"
+                  <div @click="addToCart(item.id)" v-if="!item.options"
                        class="button-add glyphicon glyphicon-plus-sign"
                        aria-hidden="true"></div>
-                  <div @click="addToCartWithOption" v-if="item.options"
+                  <div @click="showOptions" v-if="item.options"
                        class="button-add glyphicon glyphicon-plus-sign"
                        aria-hidden="true"></div>
                 </div>
@@ -58,6 +58,8 @@
       <div class="clear"></div>
     </div>
     <div class="casher-content">
+      <div class="casher-content-header">已选商品</div>
+      <div class="space"></div>
       <div v-for="item in cart" class="casher-item" v-bind:key="item.id">
         <div class="casher-item-name">
           {{item.name}}
@@ -66,11 +68,11 @@
           {{item.price}}
         </div>
         <div class="casher-item-amount">
-          <div @click="removeFromCart"
+          <div @click="removeFromCart(item.id)"
                class="button-add glyphicon glyphicon-minus-sign"
                aria-hidden="true"></div>
           <span>{{item.amount}}</span>
-          <div @click="addToCart" v-if="!item.options"
+          <div @click="addToCart(item.id)"
                class="button-add glyphicon glyphicon-plus-sign"
                aria-hidden="true"></div>
         </div>
@@ -91,6 +93,26 @@
         <div>结账</div>
       </div>
     </div>
+    <div class="modal" @click.self="handleShowModal" v-bind:style="{display: showModal}">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          选项
+        </div>
+        <div class="modal-body">
+          <div v-for="option in options" v-bind:key="option.name">
+            <div class="option-name">{{option.name}}</div>
+            <div class="options">
+              <div @click="selectOptions(option.name, item)" class="option" v-for="item in option.options" v-bind:key="item">
+                {{item}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" @click="addToCartWithOption">
+          确认
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -101,6 +123,17 @@ let count = 0
 for (let i = 0; i < 20; i++) {
   let items = []
   for (let i = 0; i < 13; i++) {
+    let options = []
+    let option1 = {
+      name: 'option-name-1',
+      options: ['option1', 'option2', 'option3', 'option4...']
+    }
+    let option2 = {
+      name: 'option-name-2',
+      options: ['option1', 'option2', 'option3', 'option4...']
+    }
+    options.push(option1)
+    options.push(option2)
     items.push(Mock.mock({
       id: count,
       name: '@cword(2,8)',
@@ -108,17 +141,30 @@ for (let i = 0; i < 20; i++) {
       sale: 33,
       rate: '99%',
       describe: '',
-      price: 18.8
+      price: 18.8,
+      options: options
     }))
     count++
   }
   content.push({cataName: Mock.mock('@cword(2,4)'), items: items, active: false})
 }
+function findDishById (content, id) {
+  for (let cata of content) {
+    for (let item of cata.items) {
+      item.id = parseInt(item.id)
+      id = parseInt(id)
+      if (item.id === id) {
+        return item
+      }
+    }
+  }
+}
 
 export default {
   name: 'OrderDishOnline',
   mounted: function () {
-    window.addEventListener('scroll', this.handleScroll)
+    // window.addEventListener('scroll', this.handleScroll)
+    // document.documentElement.addEventListener('scroll', this.handleScroll)
   },
   methods: {
     handleScroll: function () {
@@ -126,7 +172,7 @@ export default {
       let headerHeight = document.getElementsByClassName('header')[0].offsetHeight
       let offset = document.documentElement.scrollTop
       let top = headerHeight - offset
-      console.log(top + 'px')
+      // console.log(top + 'px')
       targetElem.style.top = top + 'px'
     },
     handleCartClick: function () {
@@ -137,6 +183,9 @@ export default {
       } else {
         cartContent.style.display = 'none'
       }
+    },
+    handleShowModal: function () {
+      this.showModal = this.showModal === 'block' ? 'none' : 'block'
     },
     active: function (event) {
       let cataName = event.target.innerHTML.trim()
@@ -159,14 +208,16 @@ export default {
     },
     isInCart: function (itemName) {
       for (let item of this.cart) {
-        if (item.name === itemName) { return true }
+        if (item.name === itemName) {
+          return true
+        }
       }
       return false
     },
-    addToCart: function (event) {
+    addToCart: function (id) {
       let temp = {}
       let flag = false
-      let itemName = event.target.parentNode.parentNode.parentNode.id
+      let itemName = id
       itemName = parseInt(itemName)
       for (let cata of this.content) {
         for (let item of cata.items) {
@@ -191,12 +242,55 @@ export default {
         this.cart.push(temp)
       }
     },
-    addToCartWithOption: function (event) {
+    showOptions: function (event) {
+      this.handleShowModal()
+      let itemId = event.target.parentNode.parentNode.parentNode.id
+      this.currentDishId = itemId
+      let currentDish = findDishById(this.content, this.currentDishId)
+      let tempOptions = {}
+      for (let option of currentDish.options) {
+        console.log(option.name)
+        tempOptions[option.name] = option.options[0]
+      }
+      this.currentOptions = tempOptions
+    },
+    selectOptions: function (optionName, option) {
+      console.log(optionName)
+      console.log(option)
+      this.currentOptions[optionName] = option
+    },
+    addToCartWithOption: function () {
       // let itemName = event.target.parentNode.parentNode.parentNode.id
       // console.log(itemName);
+      let currentDish = findDishById(this.content, this.currentDishId)
+      let tempDish = {}
+      let isSameOption = true
+      tempDish.id = currentDish.id
+      tempDish.name = currentDish.name
+      tempDish.price = currentDish.price
+      tempDish.options = this.currentOptions
+      tempDish.amount = 1
+      for (let item of this.cart) {
+        if (item.id === tempDish.id) {
+          isSameOption = true
+          for (let optName in item.options) {
+            if (item.options[optName] !== tempDish.options[optName]) {
+              isSameOption = false
+              break
+            }
+          }
+          if (isSameOption) {
+            item.amount++
+            this.handleShowModal()
+            return
+          }
+        }
+      }
+      this.cart.push(tempDish)
+      this.handleShowModal()
     },
-    removeFromCart: function (event) {
-      let itemName = event.target.parentNode.parentNode.parentNode.id
+    removeFromCart: function (id) {
+      let itemName = id
       itemName = parseInt(itemName)
       for (let cata of this.content) {
         for (let item of cata.items) {
@@ -208,16 +302,23 @@ export default {
       }
       for (let index in this.cart) {
         if (this.cart[index].name === itemName) {
-          if (this.cart[index].amount === 1) { this.cart.splice(index, 1) } else { this.cart[index].amount-- }
+          if (this.cart[index].amount === 1) {
+            this.cart.splice(index, 1)
+          } else {
+            this.cart[index].amount--
+          }
           break
         }
       }
     },
     selectedAmount: function (itemName) {
+      let totalAmount = 0
       for (let item of this.cart) {
-        if (item.name === itemName) { return item.amount }
+        if (item.name === itemName) {
+          totalAmount += item.amount
+        }
       }
-      return 0
+      return totalAmount
     }
   },
   computed: {
@@ -238,7 +339,17 @@ export default {
         avator: require('../assets/shop.png'),
         backgroundImg: require('../assets/background.png'),
         minCost: 10
-      }
+      },
+      showModal: 'none',
+      currentDishId: '',
+      currentOptions: {},
+      options: [{
+        name: 'option-name-1',
+        options: ['option1', 'option2', 'option3...']
+      }, {
+        name: 'option-name-2',
+        options: ['option1', 'option2', 'option3...']
+      }]
     }
   }
 }
@@ -264,10 +375,10 @@ export default {
   }
 
   .header img.avator {
-    width: 20%;
-    height: auto;
+    width: auto;
+    height: 30%;
     position: relative;
-    top: -40px;
+    top: -15%;
     /*left: 40%;*/
   }
 
@@ -300,9 +411,9 @@ export default {
 
   .catagory {
     width: 20%;
-    height: 90%;
+    height: 100%;
     float: left;
-    position: fixed;
+    position: relative;
     left: 0px;
   }
 
@@ -408,25 +519,43 @@ export default {
     position: fixed;
     display: none;
     width: 100%;
+    max-height: 40%;
     bottom: 10%;
     background-color: white;
+  }
+
+  .casher-content .space {
+    height: 45px;
+  }
+
+  .casher-content-header {
+    background-color: #458994;
+    font-size: 25px;
+    padding: 5px 0px;
+    width: 100%;
+    position: fixed;
+    color: white;
   }
 
   .casher-item {
     font-size: 15px;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    padding: 15px 0px;
   }
 
   .casher-item .casher-item-name {
     width: 50%;
   }
+
   .casher-item .casher-item-price {
     width: 20%;
   }
 
   .casher-item .casher-item-amount {
-    width: 30%;
+    width: 15%;
+    display: flex;
+    justify-content: space-between;
   }
 
   .casher .cart {
@@ -445,6 +574,35 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .modal {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+
+  .modal .modal-dialog {
+    background-color: white;
+    top: 30%;
+  }
+
+  .modal .modal-dialog .option-name {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .modal .modal-dialog .options {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .modal .modal-dialog .option {
+    border: 1px;
+    border-style: solid;
+    border-color: deepskyblue;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+    margin: 5px;
+    padding: 5px;
   }
 
   .clear {
