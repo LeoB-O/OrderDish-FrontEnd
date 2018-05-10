@@ -62,7 +62,12 @@
       <div class="space"></div>
       <div v-for="item in cart" class="casher-item" v-bind:key="item.id">
         <div class="casher-item-name">
-          {{item.name}}
+          <span>
+            {{item.name}}
+          </span>
+          <span class="casher-item-options">
+            {{optionsToString(item.options)}}
+          </span>
         </div>
         <div class="casher-item-price">
           {{item.price}}
@@ -83,15 +88,15 @@
       <div v-if="cart.length==0" class="cart">
         <div>未选购商品</div>
       </div>
-      <div v-else class="cart" @click="handleCartClick">
+      <div v-else class="cart-active" @click="handleCartClick">
         <div>{{totalPrice}}</div>
       </div>
       <div v-if="totalPrice<shop.minCost" class="check">
         <div>￥{{shop.minCost}}元起送</div>
       </div>
-      <div v-else class="check">
-        <div>结账</div>
-      </div>
+      <router-link v-else to="/CheckoutOnline" tag="div" class="check-active">
+          <div>结账</div>
+      </router-link>
     </div>
     <div class="modal" @click.self="handleShowModal" v-bind:style="{display: showModal}">
       <div class="modal-dialog">
@@ -102,8 +107,9 @@
           <div v-for="option in options" v-bind:key="option.name">
             <div class="option-name">{{option.name}}</div>
             <div class="options">
-              <div @click="selectOptions(option.name, item)" class="option" v-for="item in option.options" v-bind:key="item">
-                {{item}}
+              <div @click="selectOptions(option, item)" class="option" v-for="item in option.options"
+                   v-bind:key="item.name" :id="item" :class="{optionActive: item.active}">
+                {{item.name}}
               </div>
             </div>
           </div>
@@ -126,11 +132,11 @@ for (let i = 0; i < 20; i++) {
     let options = []
     let option1 = {
       name: 'option-name-1',
-      options: ['option1', 'option2', 'option3', 'option4...']
+      options: [{name: 'option1', active: false}, {name: 'option2', active: false}, {name: 'option3', active: false}]
     }
     let option2 = {
       name: 'option-name-2',
-      options: ['option1', 'option2', 'option3', 'option4...']
+      options: [{name: 'option1', active: false}, {name: 'option2', active: false}, {name: 'option3', active: false}]
     }
     options.push(option1)
     options.push(option2)
@@ -148,6 +154,7 @@ for (let i = 0; i < 20; i++) {
   }
   content.push({cataName: Mock.mock('@cword(2,4)'), items: items, active: false})
 }
+
 function findDishById (content, id) {
   for (let cata of content) {
     for (let item of cata.items) {
@@ -247,17 +254,24 @@ export default {
       let itemId = event.target.parentNode.parentNode.parentNode.id
       this.currentDishId = itemId
       let currentDish = findDishById(this.content, this.currentDishId)
-      let tempOptions = {}
-      for (let option of currentDish.options) {
-        console.log(option.name)
-        tempOptions[option.name] = option.options[0]
+      this.options = currentDish.options
+      for (let cata of currentDish.options) {
+        for (let item of cata.options) {
+          if (item.active) {
+            this.currentOptions[cata.name] = item.name
+            break
+          }
+          cata.options[0].active = true
+          this.currentOptions[cata.name] = cata.options[0].name
+        }
       }
-      this.currentOptions = tempOptions
     },
-    selectOptions: function (optionName, option) {
-      console.log(optionName)
-      console.log(option)
-      this.currentOptions[optionName] = option
+    selectOptions: function (options, option) {
+      this.currentOptions[options.name] = option.name
+      for (let item of options.options) {
+        item.active = false
+      }
+      option.active = true
     },
     addToCartWithOption: function () {
       // let itemName = event.target.parentNode.parentNode.parentNode.id
@@ -319,6 +333,13 @@ export default {
         }
       }
       return totalAmount
+    },
+    optionsToString: function (options) {
+      let ret = '|'
+      for (let key in options) {
+        ret += options[key] + '|'
+      }
+      return ret
     }
   },
   computed: {
@@ -509,7 +530,7 @@ export default {
     width: 100%;
     height: 10%;
     position: fixed;
-    border: 1px solid;
+    border: 0px;
     bottom: 0px;
     display: flex;
     color: #909090;
@@ -548,6 +569,11 @@ export default {
     width: 50%;
   }
 
+  .casher-item .casher-item-options {
+    font-size: 10px;
+    color: grey;
+  }
+
   .casher-item .casher-item-price {
     width: 20%;
   }
@@ -567,8 +593,27 @@ export default {
     align-items: center;
   }
 
+  .casher .cart-active {
+    background-color: #505050;
+    width: 80%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   .casher .check {
     background-color: #696969;
+    width: 20%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .casher .check-active {
+    background-color: lightskyblue;
+    color: white;
     width: 20%;
     height: 100%;
     display: flex;
@@ -603,6 +648,12 @@ export default {
     border-radius: 15px;
     margin: 5px;
     padding: 5px;
+  }
+
+  .modal .modal-dialog .optionActive {
+    background-color: deepskyblue;
+    color: white;
+    font-weight: bold;
   }
 
   .clear {
