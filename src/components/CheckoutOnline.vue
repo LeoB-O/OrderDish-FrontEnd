@@ -33,17 +33,25 @@
         <hr style="margin: 0px;">
       </div>
       <div class="orders__discount-notice">
-        <!--TODO 使用模板表示消息？ -->
-        满减活动不与单品同享
+        <div v-if="discount" class="orders__discount-detail">
+          <span class="orders__discount-msg">{{discount.msg}}</span>
+          <span>-￥{{discount.amount}}</span>
+        </div>
+        <div v-else-if="discountMsg">{{discountMsg}}</div>
+        <div v-else>满减活动不与单品同享</div>
       </div>
       <hr>
-      <div class="orders__discount">
-        <div class="orders__discount-title">
-          优惠
+      <div class="orders__redpack">
+        <div class="orders__redpack-title">
+          红包
         </div>
-        <div class="orders__discount-detail">
+        <div class="orders__redpack-detail">
           <!--TODO 使用模板表示-->
-          优惠详情
+          <span v-if="redpack">
+            <span>{{redpack.msg}}</span>
+            <span>-￥{{redpack.amount}}</span>
+          </span>
+          <span v-else>无可用红包</span>
           <span class="glyphicon glyphicon-menu-right" style="font-weight: 100;"></span>
         </div>
       </div>
@@ -63,7 +71,8 @@
       </span>
       <span class="ordernote__detail">
         <!-- TODO 改成模板-->
-        <span>口味、偏好</span>
+        <span v-if="noteDetail">{{noteDetail}}</span>
+        <span v-else>口味、偏好</span>
         <span class="glyphicon glyphicon-menu-right" style="font-weight: 100;"></span>
       </span>
     </div>
@@ -84,6 +93,11 @@ export default {
   name: 'CheckoutOnline',
   data () {
     return {
+      discount: {msg: '满减优惠', amount: 10},
+      discountMsg: '',
+      redpack: {msg: '新用户红包', amount: 20},
+      redpackDetail: '',
+      noteDetail: '',
       address: {
         name: 'LeoB_O',
         phone: '13566664444',
@@ -108,6 +122,11 @@ export default {
         options: {option1: 'select1', option2: 'select2'},
         amount: 10,
         img: require('../assets/shop.png')
+      }],
+      discounts: [{
+        type: 0,
+        requirement: 20,
+        discount: 10
       }]
     }
   },
@@ -117,7 +136,13 @@ export default {
       for (let order of this.orders) {
         sum += order.salePrice * order.amount
       }
-      return sum
+      if (this.discount) {
+        sum -= this.discount.amount
+      }
+      if (this.redpack) {
+        sum -= this.redpack.amount
+      }
+      return sum <= 0 ? 0 : sum
     }
   }
 }
@@ -162,18 +187,29 @@ export default {
     margin: 10px 10px;
   }
 
-  .orders__discount {
+  .orders__discount-detail {
+    display: flex;
+    justify-content: space-between;
+    color: red;
+    font-size: 15px;
+  }
+
+  .orders__discount-msg {
+    color: #000;
+  }
+
+  .orders__redpack {
     display: flex;
     justify-content: space-between;
     padding: 10px 15px;
   }
 
-  .orders__discount-title {
+  .orders__redpack-title {
     font-size: large;
     font-weight: 600;
   }
 
-  .orders__discount-detail {
+  .orders__redpack-detail {
   }
 
   .orders__total {
