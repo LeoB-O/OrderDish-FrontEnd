@@ -75,7 +75,7 @@
           </span>
         </div>
         <div class="casher-item-price">
-          {{item.price}}
+          {{item.salePrice}}
         </div>
         <div class="casher-item-amount">
           <div @click="removeFromCart(item.id)"
@@ -89,6 +89,9 @@
       </div>
     </div>
     <div class="space"></div>
+    <div class="casher__discount" v-if="selectDiscount.minusAmount>0">
+      已满足优惠条件，结算时优惠{{selectDiscount.minusAmount}}元
+    </div>
     <div class="casher">
       <div v-if="cart.length==0" class="cart">
         <div>未选购商品</div>
@@ -238,7 +241,8 @@ export default {
             temp.id = item.id
             itemName = item.name
             temp.name = item.name
-            temp.price = item.price
+            temp.salePrice = item.salePrice
+            temp.originPrice = item.originPrice
             temp.amount = 1
             break
           }
@@ -287,7 +291,8 @@ export default {
       let isSameOption = true
       tempDish.id = currentDish.id
       tempDish.name = currentDish.name
-      tempDish.price = currentDish.price
+      tempDish.originPrice = currentDish.originPrice
+      tempDish.salePrice = currentDish.salePrice
       tempDish.options = this.currentOptions
       tempDish.amount = 1
       for (let item of this.cart) {
@@ -352,15 +357,25 @@ export default {
     totalPrice: function () {
       let total = 0
       for (let item of this.cart) {
-        total += item.price * item.amount
+        total += item.salePrice * item.amount
       }
       return total.toFixed(2)
+    },
+    selectDiscount: function () {
+      let currentDiscount = {requireAmount: 0, minusAmount: 0}
+      for (let discount of this.discounts) {
+        if (this.totalPrice >= discount.requireAmount && currentDiscount.minusAmount < discount.minusAmount) {
+          currentDiscount = discount
+        }
+      }
+      return currentDiscount
     }
   },
   data () {
     return {
       content: content,
       cart: [],
+      discounts: [{type: 0, requireAmount: 10, minusAmount: 5}, {type: 0, requireAmount: 20, minusAmount: 10}],
       shop: {
         name: "LeoB_O's Shop",
         avator: require('../assets/shop.png'),
@@ -548,6 +563,14 @@ export default {
     bottom: 0px;
     display: flex;
     color: #909090;
+  }
+
+  .casher__discount {
+    position: fixed;
+    bottom: 10%;
+    background-color: #ff8c00;
+    width: 100%;
+    color: white;
   }
 
   .casher-content {
