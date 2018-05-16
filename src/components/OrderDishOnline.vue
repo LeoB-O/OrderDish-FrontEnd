@@ -36,7 +36,12 @@
                   好评率{{item.rate}}
                 </div>
                 <div class="item-price">
-                  ￥{{item.price}}
+                  <span class="item-origin-price" v-if="item.originPrice">
+                    ￥{{item.originPrice}}
+                  </span>
+                  <span>
+                    ￥{{item.salePrice}}
+                  </span>
                 </div>
                 <div class="button">
                   <div @click="removeFromCart(item.id)" v-if="isInCart(item.name)"
@@ -147,7 +152,8 @@ for (let i = 0; i < 20; i++) {
       sale: 33,
       rate: '99%',
       describe: '',
-      price: 18.8,
+      originPrice: 18.8,
+      salePrice: 16.66,
       options: options
     }))
     count++
@@ -503,6 +509,14 @@ export default {
   .item li .item-sale {
     font-size: 10px;
     color: #a0a0a0;
+  }
+
+  .item li .item-origin-price {
+    font-weight: normal;
+    font-size: small;
+    margin-right: 10px;
+    text-decoration: line-through;
+    color: lightgrey;
   }
 
   .item li .item-price {
