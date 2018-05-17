@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import OrderDishOnline from '@/components/OrderDishOnline'
 import CheckoutOnline from '@/components/CheckoutOnline'
+import ChooseAddress from '@/components/ChooseAddress'
 
 Vue.use(Router)
 
@@ -22,6 +23,11 @@ export default new Router({
       path: '/CheckoutOnline',
       name: 'CheckoutOnline',
       component: CheckoutOnline
+    },
+    {
+      path: '/ChooseAddress',
+      name: 'ChooseAddress',
+      component: ChooseAddress
     }
   ]
 })
