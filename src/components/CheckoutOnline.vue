@@ -1,6 +1,6 @@
 <template>
   <div class="checkout-online">
-    <div class="address">
+    <router-link to="/ChooseAddress" tag="div" class="address">
       <div class="address__notice">
         订单配送至
       </div>
@@ -11,7 +11,7 @@
       <div class="address__name-phone">
         {{address.phone+' '+address.name}}
       </div>
-    </div>
+    </router-link>
     <hr>
     <div class="orders">
       <div v-for="order in orders" :key="order.id">
@@ -34,8 +34,8 @@
       </div>
       <div class="orders__discount-notice">
         <div v-if="discount" class="orders__discount-detail">
-          <span class="orders__discount-msg">{{discount.msg}}</span>
-          <span>-￥{{discount.amount}}</span>
+          <span class="orders__discount-msg">{{discountType(discount.type)}}</span>
+          <span>-￥{{discount.minusAmount}}</span>
         </div>
         <div v-else-if="discountMsg">{{discountMsg}}</div>
         <div v-else>满减活动不与单品同享</div>
@@ -48,8 +48,8 @@
         <div class="orders__redpack-detail">
           <!--TODO 使用模板表示-->
           <span v-if="redpack">
-            <span>{{redpack.msg}}</span>
-            <span>-￥{{redpack.amount}}</span>
+            <span>{{discountType(redpack.type)}}</span>
+            <span>-￥{{redpack.minusAmount}}</span>
           </span>
           <span v-else>无可用红包</span>
           <span class="glyphicon glyphicon-menu-right" style="font-weight: 100;"></span>
@@ -93,9 +93,9 @@ export default {
   name: 'CheckoutOnline',
   data () {
     return {
-      discount: {msg: '满减优惠', amount: 10},
+      discount: {type: 0, requireAmount: 20, minusAmount: 10},
       discountMsg: '',
-      redpack: {msg: '新用户红包', amount: 20},
+      redpack: {type: 1, requireAmount: 0, minusAmount: 20},
       redpackDetail: '',
       noteDetail: '',
       address: {
@@ -137,12 +137,21 @@ export default {
         sum += order.salePrice * order.amount
       }
       if (this.discount) {
-        sum -= this.discount.amount
+        sum -= this.discount.minusAmount
       }
       if (this.redpack) {
-        sum -= this.redpack.amount
+        sum -= this.redpack.minusAmount
       }
       return sum <= 0 ? 0 : sum
+    }
+  },
+  methods: {
+    discountType: function (type) {
+      let discountTypes = {
+        0: '满减优惠',
+        1: '新用户红包'
+      }
+      return discountTypes[type]
     }
   }
 }
