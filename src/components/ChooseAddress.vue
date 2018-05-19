@@ -5,8 +5,8 @@
         选择地址
       </div>
       <div class="avalible-address__list">
-        <div class="avalible-address__item" v-for="address in addresses" v-if="address.avalible" :key="address.address">
-          <div class="avalible-item__detail">
+        <div class="avalible-address__item" @click.self="submit(address)" v-for="address in addresses" v-if="address.avalible" :key="address.address">
+          <div class="avalible-item__detail" @click="submit(address)">
             <div class="avalible-item__name-phone">
               <span class="avalible-item__name">{{address.name}}</span>
               <span class="avalible-item__phone">{{address.phone}}</span>
@@ -16,7 +16,8 @@
             </div>
           </div>
           <div class="avalible-item__modify">
-            <div class="glyphicon glyphicon-pencil" aria-hidden="true"></div>
+            <router-link tag="div" :to="toEdit(address)" class="glyphicon glyphicon-pencil"
+                         aria-hidden="true"></router-link>
           </div>
         </div>
       </div>
@@ -26,7 +27,8 @@
         以下地址超出范围
       </div>
       <div class="unavalible-address__list">
-        <div class="unavalible-address__item" v-for="address in addresses" v-if="!address.avalible" :key="address.address">
+        <div class="unavalible-address__item" v-for="address in addresses" v-if="!address.avalible"
+             :key="address.address">
           <div class="unavalible-item__detail">
             <div class="unavalible-item__name-phone">
               <span class="unavalible-item__name">{{address.name}}</span>
@@ -37,17 +39,20 @@
             </div>
           </div>
           <div class="unavalible-item__modify">
-            <div class="glyphicon glyphicon-pencil" aria-hidden="true"></div>
+            <router-link tag="div"
+                         :to="toEdit(address)"
+                         class="glyphicon glyphicon-pencil"
+                         aria-hidden="true"></router-link>
           </div>
         </div>
       </div>
     </div>
     <div class="space"></div>
     <div class="footer">
-      <div class="add-address">
+      <router-link to="/AddOrEditAddress?type=添加地址" tag="div" class="add-address">
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
         <span>添加收货地址</span>
-      </div>
+      </router-link>
     </div>
   </div>
 </template>
@@ -58,16 +63,31 @@ export default {
   data () {
     return {
       addresses: [{
+        id: 0,
         address: '京口区学府路301号江苏大学',
         name: 'LeoB_O',
         phone: '13566664444',
         avalible: true
       }, {
+        id: 1,
         address: '京口区学府路301号计算机学院',
         name: 'LeoB_O',
         phone: '1366664444',
         avalible: false
       }]
+    }
+  },
+  methods: {
+    toEdit: function (address) {
+      let url = '/AddOrEditAddress?type=修改地址&name='
+      url += address.name + '&phone='
+      url += address.phone + '&address='
+      url += address.address + '&id='
+      url += address.id
+      return url
+    },
+    submit: function (address) {
+      this.$router.push({path: '/CheckoutOnline', query: {addressid: address.id}})
     }
   }
 }
@@ -128,6 +148,7 @@ export default {
     display: flex;
     align-items: center;
   }
+
   /*************************
   ----------divide----------
   **************************/

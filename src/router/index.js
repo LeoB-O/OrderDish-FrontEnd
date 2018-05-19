@@ -4,6 +4,7 @@ import HelloWorld from '@/components/HelloWorld'
 import OrderDishOnline from '@/components/OrderDishOnline'
 import CheckoutOnline from '@/components/CheckoutOnline'
 import ChooseAddress from '@/components/ChooseAddress'
+import AddOrEditAddress from '@/components/AddOrEditAddress'
 
 Vue.use(Router)
 
@@ -28,6 +29,11 @@ export default new Router({
       path: '/ChooseAddress',
       name: 'ChooseAddress',
       component: ChooseAddress
+    },
+    {
+      path: '/AddOrEditAddress',
+      name: 'AddOrEditAddress',
+      component: AddOrEditAddress
     }
   ]
 })

@@ -262,15 +262,24 @@ export default {
     showOptions: function (event) {
       this.handleShowModal()
       let itemId = event.target.parentNode.parentNode.parentNode.id
+      let flag = true
       this.currentDishId = itemId
       let currentDish = findDishById(this.content, this.currentDishId)
       this.options = currentDish.options
+
+      // 遍历选项查看是否有默认选项
       for (let cata of currentDish.options) {
+        flag = true
         for (let item of cata.options) {
           if (item.active) {
             this.currentOptions[cata.name] = item.name
+            flag = false
             break
           }
+        }
+
+        // 没有默认选项
+        if (flag) {
           cata.options[0].active = true
           this.currentOptions[cata.name] = cata.options[0].name
         }
