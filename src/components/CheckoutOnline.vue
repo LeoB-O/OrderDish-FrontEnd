@@ -41,7 +41,7 @@
         <div v-else>满减活动不与单品同享</div>
       </div>
       <hr>
-      <div class="orders__redpack">
+      <router-link tag="div" to="/ChooseRedpack" class="orders__redpack">
         <div class="orders__redpack-title">
           红包
         </div>
@@ -54,7 +54,7 @@
           <span v-else>无可用红包</span>
           <span class="glyphicon glyphicon-menu-right" style="font-weight: 100;"></span>
         </div>
-      </div>
+      </router-link>
       <hr>
       <div class="orders__total">
         <span class="orders__total-notice">
@@ -95,7 +95,7 @@ export default {
     return {
       discount: {type: 0, requireAmount: 20, minusAmount: 10},
       discountMsg: '',
-      redpack: {type: 1, requireAmount: 0, minusAmount: 20},
+      redpack: {id: 0, type: 1, requireAmount: 0, minusAmount: 20},
       redpackDetail: '',
       noteDetail: '',
       address: {
