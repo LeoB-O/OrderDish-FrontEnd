@@ -131,6 +131,7 @@
 </template>
 
 <script>
+import request from '@/util/request'
 var Mock = require('mockjs')
 let content = []
 let count = 0
@@ -163,6 +164,7 @@ for (let i = 0; i < 20; i++) {
   }
   content.push({cataName: Mock.mock('@cword(2,4)'), items: items, active: false})
 }
+Mock.mock('http://localhost:8080/api/restaurant/1/dishes', 'get', () => content)
 
 function findDishById (content, id) {
   for (let cata of content) {
@@ -179,8 +181,14 @@ function findDishById (content, id) {
 export default {
   name: 'OrderDishOnline',
   mounted: function () {
-    // window.addEventListener('scroll', this.handleScroll)
-    // document.documentElement.addEventListener('scroll', this.handleScroll)
+    request.get('/api/restaurant/1/dishes')
+      .then((response) => {
+        console.log(response)
+        this.content = response.data
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
   },
   methods: {
     handleScroll: function () {
