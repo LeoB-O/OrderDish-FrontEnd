@@ -51,7 +51,7 @@
                   <div @click="addToCart(item.id)" v-if="!item.options"
                        class="button-add glyphicon glyphicon-plus-sign"
                        aria-hidden="true"></div>
-                  <div @click="showOptions" v-if="item.options"
+                  <div @click="showOptions(item)" v-if="item.options"
                        class="button-add glyphicon glyphicon-plus-sign"
                        aria-hidden="true"></div>
                 </div>
@@ -132,18 +132,7 @@
 
 <script>
 import request from '@/util/request'
-
-function findDishById (content, id) {
-  for (let cata of content) {
-    for (let item of cata.items) {
-      item.id = parseInt(item.id)
-      id = parseInt(id)
-      if (item.id === id) {
-        return item
-      }
-    }
-  }
-}
+import {findDishById} from '@/util/orderdish'
 
 export default {
   name: 'OrderDishOnline',
@@ -163,7 +152,6 @@ export default {
       let headerHeight = document.getElementsByClassName('header')[0].offsetHeight
       let offset = document.documentElement.scrollTop
       let top = headerHeight - offset
-      // console.log(top + 'px')
       targetElem.style.top = top + 'px'
     },
     handleCartClick: function () {
@@ -191,8 +179,6 @@ export default {
           cata.active = true
         }
       }
-      console.log(cataName)
-      // let cPos = $('#' + cataName).position()
       let cPos = document.getElementById(cataName).offsetTop
       console.log(cPos)
       document.getElementsByClassName('item')[0].scrollTo(0, cPos)
@@ -208,23 +194,14 @@ export default {
     addToCart: function (id) {
       let temp = {}
       let flag = false
-      let itemName = id
-      itemName = parseInt(itemName)
-      for (let cata of this.content) {
-        for (let item of cata.items) {
-          if (item.id === itemName) {
-            temp.id = item.id
-            itemName = item.name
-            temp.name = item.name
-            temp.salePrice = item.salePrice
-            temp.originPrice = item.originPrice
-            temp.amount = 1
-            break
-          }
-        }
-      }
+      let item = findDishById(this.content, parseInt(id))
+      temp.id = item.id
+      temp.name = item.name
+      temp.salePrice = item.salePrice
+      temp.originPrice = item.originPrice
+      temp.amount = 1
       for (let item of this.cart) {
-        if (item.name === itemName) {
+        if (item.name === temp.name) {
           item.amount++
           flag = true
           break
@@ -234,13 +211,12 @@ export default {
         this.cart.push(temp)
       }
     },
-    showOptions: function (event) {
+    showOptions: function (item) {
       this.handleShowModal()
-      let itemId = event.target.parentNode.parentNode.parentNode.id
       let flag = true
-      this.currentDishId = itemId
-      let currentDish = findDishById(this.content, this.currentDishId)
+      let currentDish = item
       this.options = currentDish.options
+      this.currentDishId = item.id
 
       // 遍历选项查看是否有默认选项
       for (let cata of currentDish.options) {
@@ -268,8 +244,6 @@ export default {
       option.active = true
     },
     addToCartWithOption: function () {
-      // let itemName = event.target.parentNode.parentNode.parentNode.id
-      // console.log(itemName);
       let currentDish = findDishById(this.content, this.currentDishId)
       let tempDish = {}
       let isSameOption = true
