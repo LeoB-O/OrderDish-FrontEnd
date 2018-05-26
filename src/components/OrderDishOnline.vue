@@ -132,39 +132,6 @@
 
 <script>
 import request from '@/util/request'
-var Mock = require('mockjs')
-let content = []
-let count = 0
-for (let i = 0; i < 20; i++) {
-  let items = []
-  for (let i = 0; i < 13; i++) {
-    let options = []
-    let option1 = {
-      name: 'option-name-1',
-      options: [{name: 'option1', active: false}, {name: 'option2', active: false}, {name: 'option3', active: false}]
-    }
-    let option2 = {
-      name: 'option-name-2',
-      options: [{name: 'option1', active: false}, {name: 'option2', active: false}, {name: 'option3', active: false}]
-    }
-    options.push(option1)
-    options.push(option2)
-    items.push(Mock.mock({
-      id: count,
-      name: '@cword(2,8)',
-      img: require('../assets/shop.png'),
-      sale: 33,
-      rate: '99%',
-      describe: '',
-      originPrice: 18.8,
-      salePrice: 16.66,
-      options: options
-    }))
-    count++
-  }
-  content.push({cataName: Mock.mock('@cword(2,4)'), items: items, active: false})
-}
-Mock.mock('http://localhost:8080/api/restaurant/1/dishes', 'get', () => content)
 
 function findDishById (content, id) {
   for (let cata of content) {
@@ -181,7 +148,7 @@ function findDishById (content, id) {
 export default {
   name: 'OrderDishOnline',
   mounted: function () {
-    request.get('/api/restaurant/1/dishes')
+    request.get('/api/dishes')
       .then((response) => {
         console.log(response)
         this.content = response.data
@@ -390,7 +357,7 @@ export default {
   },
   data () {
     return {
-      content: content,
+      content: [],
       cart: [],
       discounts: [{type: 0, requireAmount: 10, minusAmount: 5}, {type: 0, requireAmount: 20, minusAmount: 10}],
       shop: {
