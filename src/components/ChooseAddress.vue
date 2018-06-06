@@ -58,8 +58,16 @@
 </template>
 
 <script>
+import request from '@/util/request'
+
 export default {
   name: 'ChooseAddress',
+  mounted: function () {
+    request.get('/api/addresses')
+      .then((response) => {
+        this.addresses = response.data.data.addresses
+      })
+  },
   data () {
     return {
       addresses: [{
@@ -87,6 +95,7 @@ export default {
       return url
     },
     submit: function (address) {
+      request.post('/api/order/address', {id: address.id})
       this.$router.push({path: '/CheckoutOnline', query: {addressid: address.id}})
     }
   }

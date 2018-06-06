@@ -5,7 +5,7 @@
         订单配送至
       </div>
       <div class="address__detail">
-        {{address.district+address.street}}
+        {{address.address}}
         <span class="glyphicon glyphicon-menu-right" style="font-weight: 100;"></span>
       </div>
       <div class="address__name-phone">
@@ -89,8 +89,21 @@
 </template>
 
 <script>
+import request from '@/util/request'
+
 export default {
   name: 'CheckoutOnline',
+  mounted: function () {
+    request.get('/api/order/cart')
+      .then((response) => {
+        this.orders = response.data.data.content
+        console.log(this.orders)
+      })
+    request.get('/api/order/address')
+      .then((response) => {
+        this.address = response.data.data.address
+      })
+  },
   data () {
     return {
       discount: {type: 0, requireAmount: 20, minusAmount: 10},
@@ -101,10 +114,7 @@ export default {
       address: {
         name: 'LeoB_O',
         phone: '13566664444',
-        state: '江苏省',
-        city: '镇江市',
-        district: '京口区',
-        street: '学府路301号江苏大学'
+        address: '江苏省镇江市京口区学府路301号江苏大学'
       },
       orders: [{
         id: 0,
@@ -142,7 +152,7 @@ export default {
       if (this.redpack) {
         sum -= this.redpack.minusAmount
       }
-      return sum <= 0 ? 0 : sum
+      return sum <= 0 ? 0 : sum.toFixed(2)
     }
   },
   methods: {

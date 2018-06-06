@@ -140,11 +140,19 @@ export default {
     request.get('/api/dishes')
       .then((response) => {
         console.log(response)
-        this.content = response.data
+        this.content = response.data.data.content
       })
       .catch(function (error) {
         console.log(error)
       })
+    request.get('/api/order/cart')
+      .then((response) => {
+        this.cart = response.data.data.content
+      })
+  },
+  beforeDestroy: function () {
+    console.log(this.cart)
+    request.post('/api/order/add2cart', {content: this.cart})
   },
   methods: {
     handleScroll: function () {

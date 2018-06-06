@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import request from '@/util/request'
+
 export default {
   name: 'AddOrEditAddress',
   data () {
@@ -34,11 +36,10 @@ export default {
     }
   },
   mounted: function () {
-    this.id = this.$route.query.id ? this.$route.query.id : 0
     this.type = this.$route.query.type ? this.$route.query.type : '新增地址'
-    this.name = this.$route.query.name ? this.$route.query.name : ''
-    this.phone = this.$route.query.phone ? this.$route.query.phone : ''
-    this.address = this.$route.query.address ? this.$route.query.address : ''
+    if (this.$route.query.type) {
+      request.get('')
+    }
   },
   methods: {
     submit: function () {
@@ -48,6 +49,7 @@ export default {
         phone: this.phone,
         address: this.address
       }
+      request.put('/api/address', addr)
       this.$router.push({path: '/ChooseAddress', query: addr})
     }
   }
