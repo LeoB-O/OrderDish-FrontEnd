@@ -106,6 +106,7 @@ export default {
   .choose-address {
     width: 100%;
     height: 100%;
+
   }
 
   .avalible-address {
