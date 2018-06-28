@@ -53,6 +53,7 @@ export default {
     max-height: 40%;
     bottom: 10%;
     background-color: white;
+    overflow: scroll;
   }
 
   .casher-content .space {
@@ -66,6 +67,7 @@ export default {
     width: 100%;
     position: fixed;
     color: white;
+    z-index: 900;
   }
 
   .casher-item {

@@ -62,12 +62,12 @@ export default {
       })
     request.get('/api/order/cart')
       .then((response) => {
-        this.cart = response.data.data.content
+        this.cart = response.data.data.content || []
       })
   },
   beforeDestroy: function () {
     console.log(this.cart)
-    request.post('/api/order/add2cart', {content: this.cart})
+    request.post('/api/order/add2cart', {content: JSON.stringify(this.cart)})
   },
   methods: {
     handleScroll: function () {
@@ -141,6 +141,7 @@ export default {
       if (!flag) {
         this.cart.push(temp)
       }
+      request.post('/api/order/add2cart', {content: JSON.stringify(this.cart)})
     },
     showOptions: function (item) {
       this.handleShowModal()
@@ -202,13 +203,15 @@ export default {
       }
       this.cart.push(tempDish)
       this.handleShowModal()
+      request.post('/api/order/add2cart', {content: JSON.stringify(this.cart)})
     },
     removeFromCart: function (id) {
       let itemName = id
       itemName = parseInt(itemName)
+      console.log('test')
       for (let cata of this.content) {
         for (let item of cata.items) {
-          if (item.id === itemName) {
+          if (String(item.id) === String(itemName)) {
             itemName = item.name
             break
           }
@@ -224,6 +227,7 @@ export default {
           break
         }
       }
+      request.post('/api/order/add2cart', {content: JSON.stringify(this.cart)})
     },
     selectedAmount: function (itemName) {
       let totalAmount = 0

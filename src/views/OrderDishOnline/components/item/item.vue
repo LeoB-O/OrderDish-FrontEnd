@@ -1,6 +1,6 @@
 <template>
   <li :id="item.id">
-    <img v-bind:src="item.img">
+    <img v-bind:src="item.img || require('../../../../assets/shop.png')">
     <div class="item-detail">
       <div class="item-name">
         {{item.name}}
@@ -9,8 +9,8 @@
         {{item.describe}}
       </div>
       <div class="item-sale">
-        月售{{item.sale}}
-        好评率{{item.rate}}
+        月售{{item.sale||231}}
+        好评率{{item.rate||100}}
       </div>
       <div class="item-price">
         <span class="item-origin-price" v-if="item.originPrice">
