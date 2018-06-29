@@ -65,7 +65,7 @@ export default {
   mounted: function () {
     request.get('/api/addresses')
       .then((response) => {
-        this.addresses = response.data.data.addresses
+        this.addresses = response.data.data.address
       })
   },
   data () {

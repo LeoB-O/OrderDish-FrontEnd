@@ -11,11 +11,11 @@
       <div class="address__name-phone" v-if="address">
         {{address.phone+' '+address.name}}
       </div>
-      <div class="address__detail">
+      <div class="address__detail" v-if="!address">
         请添加收货地址
         <span class="glyphicon glyphicon-menu-right" style="font-weight: 100;"></span>
       </div>
-      <div class="address__name-phone">
+      <div class="address__name-phone" v-if="!address">
 
       </div>
     </router-link>
